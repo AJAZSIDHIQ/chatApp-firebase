@@ -155,16 +155,32 @@ function clickforChat(chatuserId){
         snapshot.forEach((childSnapshot) => {
             var msgJson = childSnapshot.val();
             // ...
-            console.log( msgJson);
+            if(msgJson.sender == currentUid){
+                htmlContent += "<div class='container'><p><b> ME </b>: "+msgJson.msg+"</p><span class='time-right'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
+            }
 
-            htmlContent += "<div class='container'><p>"+msgJson.msg+"</p><span class='time-right'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
+            else{
+                htmlContent += "<div class='container darker'><p><b> "+chatusername+"</b> : "+msgJson.msg+"</p><span class='time-left'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
+
+            }
+
         });
 
         document.getElementById("message-container").innerHTML =htmlContent
     });
 
     currentChatRef.on('child_added', (data) => {
-        console.log( data.key, data.val().text, data.val().author);
+        var msgJson = data.val();
+            // ...
+        let el = document.createElement('div');
+        if(msgJson.sender == currentUid){
+            el.innerHTML = "<div class='container'><p><b> ME </b>: "+msgJson.msg+"</p><span class='time-right'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
+        }
+
+        else{
+            el.innerHTML = "<div class='container darker'><p><b> "+chatusername+"</b> : "+msgJson.msg+"</p><span class='time-left'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
+        }
+        document.getElementById("message-container").append(el)
     });
 }
 
