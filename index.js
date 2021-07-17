@@ -1,13 +1,19 @@
+
+firebase.initializeApp(firebaseConfig);
+
 var currentUid = null;  
  var database = firebase.database();
 
 var userRef = database.ref('users');
 
 var currentUserRef = null
+var isCurrentUserOnline = null
 
 var currentChatRef = null
 var chatuserid = null;
 var chatusername = null;
+
+
 
  firebase.auth().onAuthStateChanged(function(user) {  
   // onAuthStateChanged listener triggers every time the user ID token changes.  
@@ -26,6 +32,8 @@ var chatusername = null;
     email: user.email,
     isOnline : true
   });
+
+  isCurrentUserOnline = true
 
    //document.body.innerHTML = user.displayName
   } else {  
@@ -149,6 +157,8 @@ function clickforChat(chatuserId){
     });
 
     userRef.on('child_changed', (data) => {
+        if(data.key == currentUid)
+            return
         var user = data.val();
         var userid = data.key
             // ...
@@ -165,10 +175,7 @@ function clickforChat(chatuserId){
 
 
     function signOut() {
-
-        currentUserRef.update({
-            isOnline : false
-        });
+        makeOffline()
 
         firebase.auth().signOut().then(function() {
             console.log('Signed Out');
@@ -176,3 +183,36 @@ function clickforChat(chatuserId){
             console.error('Sign Out Error', error);
         });
     }
+
+
+    function makeOffline(){
+        currentUserRef.update({
+            isOnline : false
+        });
+        isCurrentUserOnline = false
+    }
+
+    function makeOnline(){
+        currentUserRef.update({
+            isOnline : true
+        });
+        isCurrentUserOnline = true
+    }
+
+
+
+    var offlineTime = 10000;
+    var offlineTTimer = setTimeout(makeOffline, offlineTime);
+
+    var resetTimer = function() {
+        if(!isCurrentUserOnline){
+            makeOnline()
+        }
+        clearTimeout(offlineTTimer);
+        offlineTTimer = setTimeout(makeOffline, offlineTime);    
+    }
+
+    window.addEventListener("load", function(){
+        document.addEventListener('mousedown', resetTimer, true);
+    });
+
