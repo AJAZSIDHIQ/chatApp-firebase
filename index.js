@@ -37,7 +37,8 @@ var chatusername = null;
 
    //document.body.innerHTML = user.displayName
   } else {  
-   // Sign out operation. Reset the current user UID.  
+   // Sign out operation. Reset the current user UID. 
+   makeOffline() 
    currentUid = null;  
    console.log("no user signed in");  
    location.href = 'index.html';
@@ -215,4 +216,9 @@ function clickforChat(chatuserId){
     window.addEventListener("load", function(){
         document.addEventListener('mousedown', resetTimer, true);
     });
+
+    window.onbeforeunload = function(e) {
+        makeOffline()
+        return ;
+     };
 
