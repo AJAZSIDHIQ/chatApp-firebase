@@ -1,0 +1,216 @@
+<!DOCTYPE html>  
+ <html lang="en">  
+ <head>  
+   <title>ChatAPP</title>  
+   <meta charset="UTF-8">  
+   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+ </head> 
+ <style>
+        body {
+          margin: 0 auto;
+          /* max-width: 800px; */
+          /* padding: 0 20px; */
+        }
+        
+        .container {
+          border: 2px solid #dedede;
+          background-color: #f1f1f1;
+          border-radius: 5px;
+          padding: 10px;
+          margin: 10px 0;
+        }
+        
+        .darker {
+          border-color: #ccc;
+          background-color: #ddd;
+        }
+        
+        .container::after {
+          content: "";
+          clear: both;
+          display: table;
+        }
+        
+        .container img {
+          float: left;
+          max-width: 60px;
+          width: 100%;
+          margin-right: 20px;
+          border-radius: 50%;
+        }
+        
+        .container img.right {
+          float: right;
+          margin-left: 20px;
+          margin-right:0;
+        }
+        
+        .time-right {
+          float: right;
+          color: #aaa;
+        }
+        
+        .time-left {
+          float: left;
+          color: #999;
+        }
+        .form-container{
+            width: 100%;
+        }
+
+        .form-input{
+            width : 80%;
+            float:left;
+        }
+        .form-button{
+            width : 20%;
+            display:inline-block;
+        }
+    </style>
+ 
+ <!-- Below is the initialization snippet for my Firebase project. It will vary for each project -->  
+ <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
+
+
+ <!-- TODO: Add SDKs for Firebase products that you want to use
+      https://firebase.google.com/docs/web/setup#available-libraries -->
+      <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-auth.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-database.js"></script>
+      <script src="config.js"></script>
+ 
+ <script>
+
+   // Initialize Firebase
+   firebase.initializeApp(firebaseConfig);
+ </script> 
+ <body>  
+ <!-- A simple example script to add text to the page that displays the user's Display Name and Email -->  
+ <script>  
+ // Track the UID of the current user.  
+ var currentUid = null;  
+ var database = firebase.database();
+
+var userRef = database.ref('users');
+
+var currentUserRef = null
+
+var currentChatRef = null
+
+ firebase.auth().onAuthStateChanged(function(user) {  
+  // onAuthStateChanged listener triggers every time the user ID token changes.  
+  // This could happen when a new user signs in or signs out.  
+  // It could also happen when the current user ID token expires and is refreshed.  
+  if (user && user.uid != currentUid) {  
+   // Update the UI when a new user signs in.  
+   // Otherwise ignore if this is a token refresh.  
+   // Update the current user UID.  
+   currentUid = user.uid;  
+
+   currentUserRef = firebase.database().ref('users/' + user.uid)
+
+   currentUserRef.set({
+    username: user.displayName,
+    email: user.email,
+    isOnline : true
+  });
+
+   //document.body.innerHTML = user.displayName
+  } else {  
+   // Sign out operation. Reset the current user UID.  
+   currentUid = null;  
+   console.log("no user signed in");  
+   location.href = 'index.html';
+  }  
+ });  
+
+
+
+function clickforChat(chatuserId){
+    var chatid = "" 
+    if(currentUid < chatuserId) 
+        chatid = currentUid + chatuserId
+    else 
+        chatid = chatuserId + currentUid
+
+    currentChatRef = database.ref('chats/' + chatid );
+
+    currentChatRef.once('value', (snapshot) => {
+        snapshot.forEach((childSnapshot) => {
+            var childKey = childSnapshot.key;
+            var childData = childSnapshot.val();
+            // ...
+            console.log( childData);
+        });
+    });
+
+    currentChatRef.on('child_added', (data) => {
+        console.log( data.key, data.val().text, data.val().author);
+    });
+}
+
+ function sendmsg() {
+     let inputmsg =  document.getElementById("message-input").value
+     console.log(inputmsg)
+
+     var newMsg = currentChatRef.push();
+     newMsg.set({
+            msg : inputmsg,
+            sender : currentUid,
+            timestamp : firebase.database.ServerValue.TIMESTAMP,
+            deliveredTimestamp : null,
+            readTimestamp : null,
+        });
+ }
+
+ userRef.on('value', (snapshot) => {
+        console.log(snapshot.val());
+        let users = snapshot.val()
+        let htmlContent = ""
+        for (const key in users) {
+            if(key == currentUid)
+                continue;
+            //console.log(`${key}: ${user[key]}`);
+            htmlContent += "<li class='w3-bar' onclick=\"clickforChat('"+key+"')\"><div class='w3-bar-item'><span class='w3-large'>"+users[key].username+"</span><br><span>"+users[key].isOnline+"</span></div></li>"
+        }
+        document.getElementById("users-list-ul").innerHTML = htmlContent
+    }, (errorObject) => {
+        console.log('The read failed: ' + errorObject.name);
+    });
+ </script>  
+  <div style="width: 30%;float:left;">
+        <h2>Users list</h2>
+        <ul id="users-list-ul" class="w3-ul w3-card-4" >
+  </div>
+  </ul>
+
+  <div style="width: 70%;display:inline-block">
+        <h2>Chat Messages</h2>
+
+        <div class="container">
+          <p>Hello. How are you today?</p>
+          <span class="time-right">11:00</span>
+        </div>
+        
+        <div class="container darker">
+          <p>Hey! I'm fine. Thanks for asking!</p>
+          <span class="time-left">11:01</span>
+        </div>
+        
+        <div class="container">
+          <p>Sweet! So, what do you wanna do today?</p>
+          <span class="time-right">11:02</span>
+        </div>
+        
+        <div class="container darker">
+          <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
+          <span class="time-left">11:05</span>
+        </div>
+
+              <!-- form to send message -->
+        <div class="form-container" id="message-form">
+            <input id="message-input" class= "form-input" type="text" />
+            <button id="message-btn" class="form-button" onclick="sendmsg()">Send</button>
+        </div>
+  </div>
+ </html>

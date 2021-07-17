@@ -1,0 +1,44 @@
+<!DOCTYPE html>  
+ <html lang="en">  
+  <head>  
+   <title>ChatApp</title>  
+   <meta charset="UTF-8">  
+ </head>  
+ <!-- Below is the initialization snippet for my Firebase project. It will vary for each project -->  
+ <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
+
+ <!-- TODO: Add SDKs for Firebase products that you want to use
+      https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-auth.js"></script>
+<script src="config.js"></script>
+
+ <script>
+   // Initialize Firebase
+   firebase.initializeApp(firebaseConfig);
+ </script>
+
+<script src="https://www.gstatic.com/firebasejs/ui/4.8.0/firebase-ui-auth.js"></script>
+<link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.8.0/firebase-ui-auth.css" />
+
+   <script type="text/javascript">  
+
+
+    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+    ui.start('#firebaseui-auth-container', {
+        signInSuccessUrl: 'main.html',  
+        signInOptions: [
+            // List of OAuth providers supported.
+            firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        ],
+        // Other config options...
+        });
+
+ </script>  
+ <!-- Include a simple background image & and title -->  
+  <div></div>  
+  <body>  
+       <h3 align="center" >Chat APP Login</h1>  
+        <div id="firebaseui-auth-container"></div>  
+  </body>  
+ </html>  
