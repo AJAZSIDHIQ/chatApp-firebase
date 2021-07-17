@@ -96,6 +96,8 @@ var userRef = database.ref('users');
 var currentUserRef = null
 
 var currentChatRef = null
+var chatuserid = null;
+var chatusername = null;
 
  firebase.auth().onAuthStateChanged(function(user) {  
   // onAuthStateChanged listener triggers every time the user ID token changes.  
@@ -127,6 +129,16 @@ var currentChatRef = null
 
 
 function clickforChat(chatuserId){
+    database.ref().child("users").child(chatuserId).get().then((snapshot) => {
+        if (snapshot.exists()) {
+            //console.log(snapshot.val());
+            chatusername = snapshot.val().username
+        } else {
+            console.log("No data available");
+        }
+    }).catch((error) => {
+        console.error(error);
+    });
     var chatid = "" 
     if(currentUid < chatuserId) 
         chatid = currentUid + chatuserId
@@ -135,13 +147,20 @@ function clickforChat(chatuserId){
 
     currentChatRef = database.ref('chats/' + chatid );
 
+    let htmlContent =""
+
+
+
     currentChatRef.once('value', (snapshot) => {
         snapshot.forEach((childSnapshot) => {
-            var childKey = childSnapshot.key;
-            var childData = childSnapshot.val();
+            var msgJson = childSnapshot.val();
             // ...
-            console.log( childData);
+            console.log( msgJson);
+
+            htmlContent += "<div class='container'><p>"+msgJson.msg+"</p><span class='time-right'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
         });
+
+        document.getElementById("message-container").innerHTML =htmlContent
     });
 
     currentChatRef.on('child_added', (data) => {
@@ -150,7 +169,8 @@ function clickforChat(chatuserId){
 }
 
  function sendmsg() {
-     let inputmsg =  document.getElementById("message-input").value
+     let inputelem = document.getElementById("message-input")
+     let inputmsg =  inputelem.value
      console.log(inputmsg)
 
      var newMsg = currentChatRef.push();
@@ -161,6 +181,7 @@ function clickforChat(chatuserId){
             deliveredTimestamp : null,
             readTimestamp : null,
         });
+    inputelem.value = ''
  }
 
  userRef.on('value', (snapshot) => {
@@ -187,25 +208,29 @@ function clickforChat(chatuserId){
   <div style="width: 70%;display:inline-block">
         <h2>Chat Messages</h2>
 
-        <div class="container">
-          <p>Hello. How are you today?</p>
-          <span class="time-right">11:00</span>
+        <div id="message-container">
+            <!-- <div class="container">
+                <p>Hello. How are you today?</p>
+                <span class="time-right">11:00</span>
+            </div>
+                
+            <div class="container darker">
+                <p>Hey! I'm fine. Thanks for asking!</p>
+                <span class="time-left">11:01</span>
+            </div>
+                
+            <div class="container">
+                <p>Sweet! So, what do you wanna do today?</p>
+                <span class="time-right">11:02</span>
+            </div>
+                
+            <div class="container darker">
+                <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
+                <span class="time-left">11:05</span>
+            </div> -->
         </div>
-        
-        <div class="container darker">
-          <p>Hey! I'm fine. Thanks for asking!</p>
-          <span class="time-left">11:01</span>
-        </div>
-        
-        <div class="container">
-          <p>Sweet! So, what do you wanna do today?</p>
-          <span class="time-right">11:02</span>
-        </div>
-        
-        <div class="container darker">
-          <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-          <span class="time-left">11:05</span>
-        </div>
+
+
 
               <!-- form to send message -->
         <div class="form-container" id="message-form">
