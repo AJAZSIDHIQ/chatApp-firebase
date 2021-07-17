@@ -10,6 +10,7 @@ var currentUserRef = null
 var isCurrentUserOnline = null
 
 var currentChatRef = null
+var currentchatid = null
 var chatuserid = null;
 var chatusername = null;
 
@@ -64,6 +65,10 @@ function clickforChat(chatuserId){
     else 
         chatid = chatuserId + currentUid
 
+    if(currentchatid == chatid)
+        return;
+
+    currentchatid = chatid
     currentChatRef = database.ref('chats/' + chatid );
 
     let htmlContent =""
@@ -75,12 +80,29 @@ function clickforChat(chatuserId){
             var msgJson = childSnapshot.val();
             // ...
             if(msgJson.sender == currentUid){
-                htmlContent += "<div class='container'><p><b> ME </b>: "+msgJson.msg+"</p><span class='time-right'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
+                htmlContent += "<div id='chat-"+childSnapshot.key+"' class='container'><p><b> ME </b>: "+msgJson.msg+"</p><span class='time-right'>"+ new Date(msgJson.timestamp * 1000).toLocaleString()+"</span>"
+
+                if(msgJson.seenAt) {
+                    htmlContent += "<span class='time-left' title='seen at : "+new Date(msgJson.seenAt * 1000).toLocaleString() +" \n delivered at : "+ new Date(msgJson.deliveredAt * 1000).toLocaleString()+"'>seen</span>"
+                }
+                else if (msgJson.deliveredAt){
+                    htmlContent += "<span class='time-left' title='delivered at : "+ new Date(msgJson.deliveredAt * 1000).toLocaleString()+"'>delivered</span>"
+                }
             }
 
             else{
-                htmlContent += "<div class='container darker'><p><b> "+chatusername+"</b> : "+msgJson.msg+"</p><span class='time-left'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
+                htmlContent += "<div id='chat-"+childSnapshot.key+"' class='container darker'><p><b> "+chatusername+"</b> : "+msgJson.msg+"</p><span class='time-left'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span>"
 
+            }
+
+            htmlContent +=  "</div>"
+
+            if(msgJson.sender != currentUid  && !msgJson.seenAt){
+                let updateJson ={}
+                if(!msgJson.deliveredAt)
+                    updateJson.deliveredAt = firebase.database.ServerValue.TIMESTAMP
+                updateJson.seenAt = firebase.database.ServerValue.TIMESTAMP
+                currentChatRef.child(childSnapshot.key).update(updateJson);
             }
 
         });
@@ -95,15 +117,40 @@ function clickforChat(chatuserId){
             // ...
         let el = document.createElement('div');
         if(msgJson.sender == currentUid){
-            el.innerHTML = "<div class='container'><p><b> ME </b>: "+msgJson.msg+"</p><span class='time-right'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
+            el.innerHTML = "<div id='chat-"+data.key+"'  class='container'><p><b> ME </b>: "+msgJson.msg+"</p><span class='time-right'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
         }
 
         else{
-            el.innerHTML = "<div class='container darker'><p><b> "+chatusername+"</b> : "+msgJson.msg+"</p><span class='time-left'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
+            el.innerHTML = "<div id='chat-"+data.key+"' class='container darker'><p><b> "+chatusername+"</b> : "+msgJson.msg+"</p><span class='time-left'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
         }
         document.getElementById("message-container").append(el)
 
         window.scrollTo(0,document.body.scrollHeight);
+
+        if(msgJson.sender != currentUid  && !msgJson.seenAt){
+            let updateJson ={}
+            if(!msgJson.deliveredAt)
+                updateJson.deliveredAt = firebase.database.ServerValue.TIMESTAMP
+            updateJson.seenAt = firebase.database.ServerValue.TIMESTAMP
+            currentChatRef.child(data.key).update(updateJson);
+        }
+    });
+
+    currentChatRef.on('child_changed', (data) => {
+        var msgJson = data.val();
+            // ...
+        let el = document.getElementById('chat-'+data.key);
+        if(el && msgJson.sender == currentUid && !(el.childElementCount>2) && (msgJson.seenAt || msgJson.deliveredAt)) {
+            let temp = document.createElement('div');
+            if(msgJson.seenAt) {
+                temp.innerHTML = "<span class='time-left' title='seen at : "+new Date(msgJson.seenAt * 1000).toLocaleString() +" \n delivered at : "+ new Date(msgJson.deliveredAt * 1000).toLocaleString()+"'>seen</span>"
+            }
+            else if (msgJson.deliveredAt){
+                temp.innerHTML = "<span class='time-left' title='delivered at : "+ new Date(msgJson.deliveredAt * 1000).toLocaleString()+"'>delivered</span>"
+            }
+            el.append(temp)
+        }
+
     });
 }
 
