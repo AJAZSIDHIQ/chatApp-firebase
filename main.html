@@ -57,15 +57,26 @@
         }
         .form-container{
             width: 100%;
+            position: fixed;
+            bottom: 0;
         }
 
         .form-input{
-            width : 80%;
+            width : 60%;
             float:left;
+            height: 50px;
         }
         .form-button{
-            width : 20%;
-            display:inline-block;
+            width : 10%;
+           display:inline-block;
+           height: 50px;
+
+        }
+        #left-panel{
+            position: fixed;
+        }
+        #message-container{
+            margin: 0px 0px 50px 0px;
         }
     </style>
  
@@ -167,6 +178,8 @@ function clickforChat(chatuserId){
         });
 
         document.getElementById("message-container").innerHTML =htmlContent
+
+        window.scrollTo(0,document.body.scrollHeight);
     });
 
     currentChatRef.on('child_added', (data) => {
@@ -181,6 +194,8 @@ function clickforChat(chatuserId){
             el.innerHTML = "<div class='container darker'><p><b> "+chatusername+"</b> : "+msgJson.msg+"</p><span class='time-left'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
         }
         document.getElementById("message-container").append(el)
+
+        window.scrollTo(0,document.body.scrollHeight);
     });
 }
 
@@ -214,39 +229,31 @@ function clickforChat(chatuserId){
     }, (errorObject) => {
         console.log('The read failed: ' + errorObject.name);
     });
+
+
+    function signOut() {
+        firebase.auth().signOut().then(function() {
+            console.log('Signed Out');
+        }, function(error) {
+            console.error('Sign Out Error', error);
+        });
+    }
  </script>  
-  <div style="width: 30%;float:left;">
-        <h2>Users list</h2>
+  <div id="left-panel" style="width: 30%;float:inline;">
+        <h2 style="display: inline">Users list</h2>
+         <button style="display: inline ; float: right;" onclick="signOut()"> signout</button>
         <ul id="users-list-ul" class="w3-ul w3-card-4" >
   </div>
   </ul>
 
-  <div style="width: 70%;display:inline-block">
-        <h2>Chat Messages</h2>
-
-        <div id="message-container">
-            <!-- <div class="container">
-                <p>Hello. How are you today?</p>
-                <span class="time-right">11:00</span>
-            </div>
-                
-            <div class="container darker">
-                <p>Hey! I'm fine. Thanks for asking!</p>
-                <span class="time-left">11:01</span>
-            </div>
-                
-            <div class="container">
-                <p>Sweet! So, what do you wanna do today?</p>
-                <span class="time-right">11:02</span>
-            </div>
-                
-            <div class="container darker">
-                <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-                <span class="time-left">11:05</span>
-            </div> -->
+  <div style="width: 70%;display:inline-block ; float: right;">
+        <div style="position: fixed; background-color: white ; width: 100% ;">
+                <h2 >Chat Messages</h2>
         </div>
 
+        <div id="message-container" style="overflow: auto;">
 
+        </div>
 
               <!-- form to send message -->
         <div class="form-container" id="message-form">
