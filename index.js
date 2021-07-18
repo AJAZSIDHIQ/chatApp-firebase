@@ -49,6 +49,8 @@ var chatusername = null;
 
 
 function clickforChat(chatuserId){
+    document.getElementById("info-panel").style.display= "none"
+    document.getElementById("right-panel").style.display= "block"
     database.ref().child("users").child(chatuserId).get().then((snapshot) => {
         if (snapshot.exists()) {
             //console.log(snapshot.val());
