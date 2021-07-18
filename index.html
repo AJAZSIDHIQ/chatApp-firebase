@@ -1,44 +1,126 @@
 <!DOCTYPE html>  
  <html lang="en">  
-  <head>  
-   <title>ChatApp</title>  
+ <head>  
+   <title>ChatAPP</title>  
    <meta charset="UTF-8">  
- </head>  
+   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+ </head> 
+ <style>
+        body {
+          margin: 0 auto;
+          /* max-width: 800px; */
+          /* padding: 0 20px; */
+        }
+        
+        .container {
+          border: 2px solid #dedede;
+          background-color: #f1f1f1;
+          border-radius: 5px;
+          padding: 10px;
+          margin: 10px 0;
+        }
+        
+        .darker {
+          border-color: #ccc;
+          background-color: #ddd;
+        }
+        
+        .container::after {
+          content: "";
+          clear: both;
+          display: table;
+        }
+        
+        .container img {
+          float: left;
+          max-width: 60px;
+          width: 100%;
+          margin-right: 20px;
+          border-radius: 50%;
+        }
+        
+        .container img.right {
+          float: right;
+          margin-left: 20px;
+          margin-right:0;
+        }
+        
+        .time-right {
+          float: right;
+          color: #aaa;
+        }
+        
+        .time-left {
+          float: left;
+          color: #999;
+        }
+        .form-container{
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+        }
+
+        .form-input{
+            width : 60%;
+            float:left;
+            height: 50px;
+        }
+        .form-button{
+            width : 10%;
+           display:inline-block;
+           height: 50px;
+
+        }
+        #left-panel{
+            position: fixed;
+        }
+        #message-container{
+            margin: 0px 0px 50px 0px;
+        }
+    </style>
+ 
  <!-- Below is the initialization snippet for my Firebase project. It will vary for each project -->  
  <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
 
+
  <!-- TODO: Add SDKs for Firebase products that you want to use
       https://firebase.google.com/docs/web/setup#available-libraries -->
-<script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-auth.js"></script>
-<script src="config.js"></script>
-
+      <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-auth.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-database.js"></script>
+      <script src="config.js"></script>
+      <script src="index.js"></script>
+ 
  <script>
+
    // Initialize Firebase
-   firebase.initializeApp(firebaseConfig);
- </script>
-
-<script src="https://www.gstatic.com/firebasejs/ui/4.8.0/firebase-ui-auth.js"></script>
-<link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.8.0/firebase-ui-auth.css" />
-
-   <script type="text/javascript">  
-
-
-    var ui = new firebaseui.auth.AuthUI(firebase.auth());
-
-    ui.start('#firebaseui-auth-container', {
-        signInSuccessUrl: 'main.html',  
-        signInOptions: [
-            // List of OAuth providers supported.
-            firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-        ],
-        // Other config options...
-        });
-
+ </script> 
+ <body>  
+ <!-- A simple example script to add text to the page that displays the user's Display Name and Email -->  
+ <script>  
+ // Track the UID of the current user.  
+ 
  </script>  
- <!-- Include a simple background image & and title -->  
-  <div></div>  
-  <body>  
-       <h3 align="center" >Chat APP Login</h1>  
-        <div id="firebaseui-auth-container"></div>  
-  </body>  
- </html>  
+  <div id="left-panel" style="width: 30%;float:inline;">
+        <h2 style="display: inline">Users list</h2>
+         <button style="display: inline ; float: right;" onclick="signOut()"> signout</button>
+        <ul id="users-list-ul" class="w3-ul w3-card-4" >
+  </div>
+  </ul>
+
+  <div style="width: 70%;display:inline-block ; float: right;">
+        <div style="position: fixed; background-color: white ; width: 100% ;">
+                <h2 >Chat Messages</h2>
+        </div>
+
+        <div id="message-container" style="overflow: auto;">
+
+        </div>
+
+              <!-- form to send message -->
+        <div class="form-container" id="message-form">
+            <input id="message-input" class= "form-input" type="text" />
+            <button id="message-btn" class="form-button" onclick="sendmsg()">Send</button>
+        </div>
+  </div>
+ </html>

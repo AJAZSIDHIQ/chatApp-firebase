@@ -42,7 +42,7 @@ var chatusername = null;
    makeOffline() 
    currentUid = null;  
    console.log("no user signed in");  
-   location.href = 'index.html';
+   location.href = 'login/';
   }  
  });  
 
