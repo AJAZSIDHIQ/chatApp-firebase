@@ -42,7 +42,7 @@ var chatusername = null;
    makeOffline() 
    currentUid = null;  
    console.log("no user signed in");  
-   location.href = 'login/';
+   location.href = 'login/index.html';
   }  
  });  
 
@@ -118,14 +118,17 @@ function clickforChat(chatuserId){
         var msgJson = data.val();
             // ...
         let el = document.createElement('div');
-        if(msgJson.sender == currentUid){
-            el.innerHTML = "<div id='chat-"+data.key+"'  class='container'><p><b> ME </b>: "+msgJson.msg+"</p><span class='time-right'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
+        if(!document.getElementById("chat-" + data.key)){
+            if(msgJson.sender == currentUid){
+                el.innerHTML = "<div id='chat-"+data.key+"'  class='container'><p><b> ME </b>: "+msgJson.msg+"</p><span class='time-right'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
+            }
+    
+            else{
+                el.innerHTML = "<div id='chat-"+data.key+"' class='container darker'><p><b> "+chatusername+"</b> : "+msgJson.msg+"</p><span class='time-left'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
+            }
+            document.getElementById("message-container").append(el)
         }
 
-        else{
-            el.innerHTML = "<div id='chat-"+data.key+"' class='container darker'><p><b> "+chatusername+"</b> : "+msgJson.msg+"</p><span class='time-left'>"+ new Date(msgJson.timestamp * 1000).toUTCString()+"</span></div>"
-        }
-        document.getElementById("message-container").append(el)
 
         window.scrollTo(0,document.body.scrollHeight);
 
@@ -236,17 +239,23 @@ function clickforChat(chatuserId){
 
 
     function makeOffline(){
-        currentUserRef.update({
-            isOnline : false
-        });
-        isCurrentUserOnline = false
+        if(currentUserRef){
+            currentUserRef.update({
+                isOnline : false
+            });
+            isCurrentUserOnline = false
+        }
+
     }
 
     function makeOnline(){
-        currentUserRef.update({
-            isOnline : true
-        });
-        isCurrentUserOnline = true
+        if(currentUserRef){
+            currentUserRef.update({
+                isOnline : true
+            });
+            isCurrentUserOnline = true
+        }
+
     }
 
 
